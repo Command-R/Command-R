@@ -50,6 +50,7 @@
     <Compile Include="Authentication\ExecutionEnvironment.cs" />
     <Compile Include="Authentication\ITokenService.cs" />
     <Compile Include="Commander.cs" />
+    <Compile Include="Extensions\Extensions.cs" />
     <Compile Include="Interfaces.cs" />
     <Compile Include="JsonRpc.cs" />
     <Compile Include="JsonRpcClient.cs" />
