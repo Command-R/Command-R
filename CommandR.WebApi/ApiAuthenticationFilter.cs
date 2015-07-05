@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
+using CommandR.Authentication;
 
-namespace CommandR.Authentication
+namespace CommandR.WebApi
 {
     public class ApiAuthenticationFilter : IActionFilter
     {

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using Newtonsoft.Json;
 
-namespace CommandR
+namespace CommandR.WebApi
 {
     [RoutePrefix("jsonrpc")]
     public class JsonRpcController : ApiController
