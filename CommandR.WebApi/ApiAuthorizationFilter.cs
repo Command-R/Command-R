@@ -9,7 +9,7 @@ using CommandR.Authentication;
 
 namespace CommandR.WebApi
 {
-    public class ApiAuthenticationFilter : IActionFilter
+    public class ApiAuthorizationFilter : IActionFilter
     {
         public async Task<HttpResponseMessage> ExecuteActionFilterAsync(HttpActionContext context, CancellationToken cancellationToken, Func<Task<HttpResponseMessage>> continuation)
         {
@@ -31,10 +31,10 @@ namespace CommandR.WebApi
 
         private static string GetTokenIdFromRequest(HttpRequestMessage request)
         {
-            var auth = request.Headers.Contains(JsonRpcClient.AuthenticationKey)
-                ? request.Headers.GetValues(JsonRpcClient.AuthenticationKey).First()
+            var auth = request.Headers.Contains(JsonRpcClient.AuthorizationKey)
+                ? request.Headers.GetValues(JsonRpcClient.AuthorizationKey).First()
                 : request.GetQueryNameValuePairs()
-                         .Where(x => x.Key == JsonRpcClient.AuthenticationKey)
+                         .Where(x => x.Key == JsonRpcClient.AuthorizationKey)
                          .Select(x => x.Value)
                          .FirstOrDefault();
 

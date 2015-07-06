@@ -19,7 +19,7 @@ namespace CommandR
     public class JsonRpcClient
     {
         private readonly string _rpcEndpointUrl;
-        public const string AuthenticationKey = "Authentication";
+        public const string AuthorizationKey = "Authorization";
 
         public JsonRpcClient(string rpcEndpointUrl)
         {
@@ -29,10 +29,10 @@ namespace CommandR
 
         public NameValueCollection Headers { get; set; }
 
-        public string Authentication
+        public string Authorization
         {
-            get { return Headers[AuthenticationKey]; }
-            set { Headers[AuthenticationKey] = value; }
+            get { return Headers[AuthorizationKey]; }
+            set { Headers[AuthorizationKey] = value; }
         }
 
         public TResponse Send<TResponse>(IRequest<TResponse> request)
