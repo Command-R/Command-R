@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Threading;
 using CfgDotNet;
 using CommandR.Authentication;
+using CommandR.Services;
 using MediatR;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -12,13 +13,13 @@ using MongoDB.Driver.Builders;
 
 namespace CommandR.MongoQueue
 {
-    public class QueueService
+    public class MongoQueueService : IQueueService
     {
         private readonly Settings _settings;
         private readonly Commander _commander;
         private readonly MongoDatabase _database;
 
-        public QueueService(Settings settings, Commander commander)
+        public MongoQueueService(Settings settings, Commander commander)
         {
             _settings = settings;
             _commander = commander;
@@ -68,7 +69,7 @@ namespace CommandR.MongoQueue
             collection.Insert(queueJob);
         }
 
-        public virtual void StartProcessing(CancellationToken cancellationToken, Action<QueueJob> execute)
+        public virtual void StartProcessing(CancellationToken cancellationToken, Action<object, AppContext> execute)
         {
             RegisterClassMaps();
             if (_settings.ResetCollection) DropCollection();
@@ -96,7 +97,7 @@ namespace CommandR.MongoQueue
 
                 try
                 {
-                    execute(queueJob);
+                    execute(queueJob.Command, queueJob.Context);
                     queueJob.IsComplete = true;
                     collection.Save(queueJob);
                 }

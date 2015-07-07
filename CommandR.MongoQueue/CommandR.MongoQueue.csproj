@@ -55,7 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="QueueJob.cs" />
-    <Compile Include="QueueService.cs" />
+    <Compile Include="MongoQueueService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

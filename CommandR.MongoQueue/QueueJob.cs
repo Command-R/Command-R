@@ -4,7 +4,7 @@ using MongoDB.Bson;
 
 namespace CommandR.MongoQueue
 {
-    public class QueueJob
+    internal class QueueJob
     {
         public QueueJob()
         {
