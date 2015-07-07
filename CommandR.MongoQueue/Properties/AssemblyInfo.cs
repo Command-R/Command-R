@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Command-R")]
+[assembly: AssemblyTitle("Command-R.MongoQueue")]
 [assembly: AssemblyDescription("Execute MediatR requests via JsonRpc using WebAPI")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Command-R Contributors")]
-[assembly: AssemblyProduct("Command-R")]
+[assembly: AssemblyProduct("Command-R.MongoQueue")]
 [assembly: AssemblyCopyright("Copyright 2014-2015 Command-R Contributors")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("6d3f199d-2b73-4a10-81ec-b54d4ab2408d")]
+[assembly: Guid("1004a35e-9842-4bc0-b50f-aa2ab9ca1ec3")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -34,3 +34,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("0.1.5.0")]
 [assembly: AssemblyFileVersion("0.1.5.0")]
 [assembly: AssemblyInformationalVersion("0.1.5-beta")]
+
