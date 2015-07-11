@@ -30,8 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MediatR">
-      <HintPath>..\packages\MediatR.2.0.0-beta-005\lib\net45\MediatR.dll</HintPath>
+    <Reference Include="MediatR, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MediatR.2.0.0-beta-002\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+Xamarin.iOS10+MonoTouch10\MediatR.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

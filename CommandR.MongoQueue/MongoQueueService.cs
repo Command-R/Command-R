@@ -115,18 +115,20 @@ namespace CommandR.MongoQueue
 
         private void RegisterClassMaps()
         {
-            if (BsonClassMap.GetRegisteredClassMaps().Any(x => x.ClassType.Name == "Noop"))
-                return;
+            var registeredTypes = BsonClassMap.GetRegisteredClassMaps().Select(x => x.ClassType).ToList();
 
             var commands = _commander.GetRegisteredCommands().Values;
-            var methodInfo = typeof(BsonClassMap).GetMethod("RegisterClassMap",
+            var registerClassMapMethod = typeof(BsonClassMap).GetMethod("RegisterClassMap",
                 BindingFlags.Public | BindingFlags.Static, null,
-                Type.EmptyTypes, new ParameterModifier[] { });
+                Type.EmptyTypes, new ParameterModifier[] {});
 
             foreach (var cmdType in commands)
             {
-                var x = methodInfo.MakeGenericMethod(cmdType);
-                x.Invoke(this, null);
+                if (registeredTypes.Contains(cmdType))
+                    continue;
+
+                registerClassMapMethod.MakeGenericMethod(cmdType)
+                                      .Invoke(this, null);
             }
         }
 
