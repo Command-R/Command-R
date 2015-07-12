@@ -11,7 +11,7 @@ namespace CommandR
     {
         internal class Handler : IRequestHandler<Noop, Unit>
         {
-            public Unit Handle(Noop request)
+            public Unit Handle(Noop command)
             {
                 return Unit.Value;
             }

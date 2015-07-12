@@ -83,5 +83,40 @@ namespace CommandR.Extensions
         {
             return obj == null || obj.PatchFields == null || obj.PatchFields.Contains(name);
         }
+
+        public static IQueryable<T> Paged<T>(this IQueryable<T> query, IPageable command, int? defaultResults = null, int? maxResults = null)
+        {
+            if (!command.PageNumber.HasValue || command.PageNumber < 1)
+                command.PageNumber = 1;
+
+            if (!command.PageSize.HasValue)
+                command.PageSize = defaultResults ?? 100;
+
+            if (maxResults.HasValue && (command.PageSize == null || command.PageSize.Value > maxResults.Value))
+                command.PageSize = maxResults;
+
+            var recordsToSkip = command.PageNumber > 1 ? (command.PageNumber - 1) * command.PageSize : 0;
+
+            return query.Skip(recordsToSkip.Value)
+                        .Take(command.PageSize.Value);
+        }
+
+        public static PagedList<T> ToPagedList<T>(this IEnumerable<T> items, int pageNumber, int totalItems)
+        {
+            return new PagedList<T>
+            {
+                PageNumber = pageNumber,
+                Items = items.ToList(),
+                TotalItems = totalItems,
+            };
+        }
+
+        public static PagedList<T> ToPagedList<T>(this IQueryable<T> query, IPageable command,
+            int? defaultResults = null, int? maxResults = null)
+        {
+            return query
+                .Paged(command, defaultResults, maxResults)
+                .ToPagedList(command.PageNumber ?? 1, command.PageSize ?? 100);
+        }
     };
 }

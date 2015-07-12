@@ -12,7 +12,7 @@ namespace CommandR
     public class Commander
     {
         private readonly IMediator _mediator;
-        private static Dictionary<string, Type> _requestTypes;
+        private static Dictionary<string, Type> _commandTypes;
 
         public Commander(IMediator mediator)
         {
@@ -21,36 +21,35 @@ namespace CommandR
 
         public static void Initialize(params Assembly[] assemblies)
         {
-            _requestTypes = LoadAllRequestTypes(assemblies.Union(new[] { typeof(Commander).Assembly }));
+            _commandTypes = LoadAllRequestTypes(assemblies.Union(new[] { typeof(Commander).Assembly }));
         }
 
         public async Task<object> Send(string name, string json)
         {
-            var request = LoadRequest(name, json);
-            var response = await Send(request);
-            return response;
+            var command = LoadCommand(name, json);
+            return await Send(command);
         }
 
-        public async Task<dynamic> Send(object request)
+        public async Task<dynamic> Send(object command)
         {
-            if (request == null)
+            if (command == null)
                 return null;
 
             try
             {
                 //Request
-                var requestInterface = request.GetType().GetInterface("IRequest`1");
-                if (requestInterface != null)
+                var iRequest = command.GetType().GetInterface("IRequest`1");
+                if (iRequest != null)
                 {
-                    var send = _mediator.GetType().GetMethod("Send").MakeGenericMethod(requestInterface.GetGenericArguments());
-                    var result = send.Invoke(_mediator, new[] { request });
+                    var send = _mediator.GetType().GetMethod("Send").MakeGenericMethod(iRequest.GetGenericArguments());
+                    var result = send.Invoke(_mediator, new[] { command });
                     return result;
                 }
 
                 //Async Request
-                var asyncRequestInterface = request.GetType().GetInterface("IAsyncRequest`1");
-                var sendAsync = _mediator.GetType().GetMethod("SendAsync").MakeGenericMethod(asyncRequestInterface.GetGenericArguments());
-                var task = (Task)sendAsync.Invoke(_mediator, new[] { request });
+                var iAsyncRequest = command.GetType().GetInterface("IAsyncRequest`1");
+                var sendAsync = _mediator.GetType().GetMethod("SendAsync").MakeGenericMethod(iAsyncRequest.GetGenericArguments());
+                var task = (Task)sendAsync.Invoke(_mediator, new[] { command });
                 await task;
                 return task.GetType().GetProperty("Result").GetValue(task);
             }
@@ -60,36 +59,36 @@ namespace CommandR
             }
             catch (Exception ex)
             {
-                throw new ApplicationException("CommandProcessor.Send ERROR on request type " + request.GetType(), ex);
+                throw new ApplicationException("CommandProcessor.Send ERROR on command type " + command.GetType(), ex);
             }
         }
 
-        public T Send<T>(IRequest<T> request)
+        public T Send<T>(IRequest<T> command)
         {
-            return _mediator.Send(request);
+            return _mediator.Send(command);
         }
 
         public IDictionary<string, Type> GetRegisteredCommands()
         {
-            return _requestTypes;
+            return _commandTypes;
         }
 
-        public object CreateRequest(string name)
+        public object CreateCommand(string name)
         {
-            if (!_requestTypes.ContainsKey(name))
+            if (!_commandTypes.ContainsKey(name))
                 throw new ApplicationException("Request type not found: " + name);
 
             //Instantiate Command
-            var type = _requestTypes[name];
-            var request = Activator.CreateInstance(type);
-            return request;
+            var type = _commandTypes[name];
+            var command = Activator.CreateInstance(type);
+            return command;
         }
 
-        public object LoadRequest(string name, string json)
+        public object LoadCommand(string name, string json)
         {
             try
             {
-                var request = CreateRequest(name);
+                var request = CreateCommand(name);
                 if (string.IsNullOrWhiteSpace(json))
                     return request;
 
@@ -107,7 +106,7 @@ namespace CommandR
             }
             catch (Exception ex)
             {
-                throw new ApplicationException("Unable to load request: " + name, ex);
+                throw new ApplicationException("Unable to load command: " + name, ex);
             }
         }
 
@@ -115,13 +114,13 @@ namespace CommandR
         {
             var dict = new Dictionary<string, Type>();
 
-            var requestType = typeof(IRequest<>);
-            var asyncRequestType = typeof(IAsyncRequest<>);
+            var iRequest = typeof(IRequest<>);
+            var iAsyncRequest = typeof(IAsyncRequest<>);
             foreach (var asm in assemblies)
             {
                 foreach (var type in asm.GetTypes())
                 {
-                    if (!type.IsAbstract && (InheritsOrImplements(type, requestType) || InheritsOrImplements(type, asyncRequestType)))
+                    if (!type.IsAbstract && (InheritsOrImplements(type, iRequest) || InheritsOrImplements(type, iAsyncRequest)))
                         dict[type.Name] = type;
                 }
             }

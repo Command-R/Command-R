@@ -23,13 +23,16 @@ namespace CommandR.MongoQueue
         {
             _settings = settings;
             _commander = commander;
-            _database = GetMongoDatabase(settings);
+            _database = GetMongoDatabase();
         }
 
-        private static MongoDatabase GetMongoDatabase(Settings settings)
+        private MongoDatabase GetMongoDatabase()
         {
-            var mongoUrl = MongoUrl.Create(settings.ConnectionString);
-            var client = new MongoClient(settings.ConnectionString);
+            if (_settings.IsDisabled)
+                return null;
+
+            var mongoUrl = MongoUrl.Create(_settings.ConnectionString);
+            var client = new MongoClient(_settings.ConnectionString);
             var server = client.GetServer();
             var database = server.GetDatabase(mongoUrl.DatabaseName);
             return database;
@@ -37,7 +40,7 @@ namespace CommandR.MongoQueue
 
         private void CreateCollection()
         {
-            if (_database.CollectionExists(_settings.CollectionName))
+            if (_database == null || _database.CollectionExists(_settings.CollectionName))
                 return;
 
             var options = CollectionOptions
@@ -55,6 +58,9 @@ namespace CommandR.MongoQueue
 
         public virtual void Enqueue<T>(IRequest<T> command, AppContext appContext)
         {
+            if (_settings.IsDisabled)
+                return;
+
             CreateCollection();
             var queueJob = new QueueJob(command, appContext);
             var collection = _database.GetCollection<QueueJob>(_settings.CollectionName);
@@ -63,6 +69,9 @@ namespace CommandR.MongoQueue
 
         public virtual void Enqueue<T>(IAsyncRequest<T> command, AppContext appContext)
         {
+            if (_settings.IsDisabled)
+                return;
+
             CreateCollection();
             var queueJob = new QueueJob(command, appContext);
             var collection = _database.GetCollection<QueueJob>(_settings.CollectionName);
@@ -71,6 +80,9 @@ namespace CommandR.MongoQueue
 
         public virtual void StartProcessing(CancellationToken cancellationToken, Action<object, AppContext> execute)
         {
+            if (_settings.IsDisabled)
+                return;
+
             RegisterClassMaps();
             if (_settings.ResetCollection) DropCollection();
             CreateCollection();
@@ -120,22 +132,24 @@ namespace CommandR.MongoQueue
             var commands = _commander.GetRegisteredCommands().Values;
             var registerClassMapMethod = typeof(BsonClassMap).GetMethod("RegisterClassMap",
                 BindingFlags.Public | BindingFlags.Static, null,
-                Type.EmptyTypes, new ParameterModifier[] {});
+                Type.EmptyTypes, new ParameterModifier[] { });
 
-            foreach (var cmdType in commands)
+            foreach (var commandType in commands)
             {
-                if (registeredTypes.Contains(cmdType))
+                if (registeredTypes.Contains(commandType))
                     continue;
 
-                registerClassMapMethod.MakeGenericMethod(cmdType)
+                registerClassMapMethod.MakeGenericMethod(commandType)
                                       .Invoke(this, null);
             }
         }
 
         private void DropCollection()
         {
-            if (_database.CollectionExists(_settings.CollectionName))
+            if (_database != null && _database.CollectionExists(_settings.CollectionName))
+            {
                 _database.DropCollection(_settings.CollectionName);
+            }
         }
 
         public class Settings : BaseSettings
