@@ -14,7 +14,7 @@ namespace CommandR
     /// </summary>
     /// <example>
     ///     var client = new JsonRpcClient("https://example.com/jsonrpc");
-    ///     var result = client.Send(new Query { Search = "A" });
+    ///     var result = client.Send(new SomeQuery { Search = "A" });
     /// </example>
     public class JsonRpcClient
     {
@@ -71,6 +71,14 @@ namespace CommandR
             {
                 var result = (JObject)jsonRpcResponse.result;
                 return result.ToObject<TResponse>();
+            }
+            else if (jsonRpcResponse.result == null)
+            {
+                return default(TResponse);
+            }
+            else if (jsonRpcResponse.result.GetType().IsPrimitive)
+            {
+                return (TResponse)Convert.ChangeType(jsonRpcResponse.result, typeof (TResponse));
             }
             else
             {
