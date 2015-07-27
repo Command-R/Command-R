@@ -55,7 +55,7 @@ namespace CommandR
             }
             catch (TargetInvocationException ex)
             {
-                throw ex.InnerException;
+                ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
             }
             catch (Exception ex)
             {
